@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface HomeLoansFeignClient {
 
     @GetMapping(value = "/v1/get",consumes = "application/json")
-    public ResponseEntity<HomeLoansDto> getHomeLoanDetails(@RequestParam String mobileNumber);
+    public ResponseEntity<HomeLoansDto> getHomeLoanDetails(@RequestParam String phoneNumber);
 
 }

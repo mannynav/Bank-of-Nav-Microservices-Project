@@ -42,9 +42,9 @@ public class SavingsAccountController {
 
     @GetMapping("/get")
     public ResponseEntity<CustomerDto> getSavingsAccount(@RequestParam
-                                                               @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
-                                                               String mobileNumber) {
-        CustomerDto customerDto = iSavingsAccountsService.fetchAccount(mobileNumber);
+                                                               @Pattern(regexp="(^$|[0-9]{10})",message = "Phone number must be 10 digits")
+                                                               String phoneNumber) {
+        CustomerDto customerDto = iSavingsAccountsService.fetchAccount(phoneNumber);
         return ResponseEntity.status(HttpStatus.OK).body(customerDto);
     }
 
@@ -64,9 +64,9 @@ public class SavingsAccountController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<ResponseDto> deleteSavingsAccount(@RequestParam
-                                                                @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
-                                                                String mobileNumber) {
-        boolean isDeleted = iSavingsAccountsService.deleteAccount(mobileNumber);
+                                                                @Pattern(regexp="(^$|[0-9]{10})",message = "Phone number must be 10 digits")
+                                                                String phoneNumber) {
+        boolean isDeleted = iSavingsAccountsService.deleteAccount(phoneNumber);
         if(isDeleted) {
             return ResponseEntity
                     .status(HttpStatus.OK)

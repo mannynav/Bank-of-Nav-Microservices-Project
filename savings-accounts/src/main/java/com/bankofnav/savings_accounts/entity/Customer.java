@@ -20,7 +20,7 @@ public class Customer extends BaseEntity {
 
     private String email;
 
-    @Column(name = "mobile_number")
-    private String mobileNumber;
+    @Column(name = "phone_number")
+    private String phoneNumber;
 
 }

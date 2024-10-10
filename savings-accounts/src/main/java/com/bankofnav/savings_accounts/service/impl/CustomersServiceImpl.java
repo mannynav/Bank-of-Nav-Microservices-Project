@@ -24,23 +24,19 @@ public class CustomersServiceImpl implements ICustomersService {
     private CustomerRepository customerRepository;
     private HomeLoansFeignClient homeLoansFeignClient;
 
-    /**
-     * @param mobileNumber - Input Mobile Number
-     * @return Customer Details based on a given mobileNumber
-     */
     @Override
-    public CustomerDetailsDto getCustomerDetails(String mobileNumber) {
-        Customer customer = customerRepository.findByMobileNumber(mobileNumber).orElseThrow(
-                () -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber)
+    public CustomerDetailsDto getCustomerDetails(String phoneNumber) {
+        Customer customer = customerRepository.findByPhoneNumber(phoneNumber).orElseThrow(
+                () -> new ResourceNotFoundException("Customer", "phone Number", phoneNumber)
         );
         SavingsAccounts savingsAccounts = savingsAccountsRepository.findByCustomerId(customer.getCustomerId()).orElseThrow(
-                () -> new ResourceNotFoundException("Account", "customerId", customer.getCustomerId().toString())
+                () -> new ResourceNotFoundException("Savings account", "customerId", customer.getCustomerId().toString())
         );
 
         CustomerDetailsDto customerDetailsDto = CustomerMapper.mapToCustomerDetailsDto(customer, new CustomerDetailsDto());
         customerDetailsDto.setSavingsAccountsDto(SavingsAccountsMapper.mapToSavingsAccountsDto(savingsAccounts, new SavingsAccountsDto()));
 
-        ResponseEntity<HomeLoansDto> loansDtoResponseEntity = homeLoansFeignClient.getHomeLoanDetails(mobileNumber);
+        ResponseEntity<HomeLoansDto> loansDtoResponseEntity = homeLoansFeignClient.getHomeLoanDetails(phoneNumber);
         customerDetailsDto.setHomeLoansDto(loansDtoResponseEntity.getBody());
 
         return customerDetailsDto;

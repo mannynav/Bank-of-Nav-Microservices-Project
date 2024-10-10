@@ -25,25 +25,18 @@ public class SavingsAccountsServiceImpl implements ISavingsAccountsService {
     private SavingsAccountsRepository savingsAccountsRepository;
     private CustomerRepository customerRepository;
 
-    /**
-     * @param customerDto - CustomerDto Object
-     */
     @Override
     public void createAccount(CustomerDto customerDto) {
         Customer customer = CustomerMapper.mapToCustomer(customerDto, new Customer());
-        Optional<Customer> optionalCustomer = customerRepository.findByMobileNumber(customerDto.getMobileNumber());
+        Optional<Customer> optionalCustomer = customerRepository.findByPhoneNumber(customerDto.getPhoneNumber());
         if(optionalCustomer.isPresent()) {
             throw new CustomerAlreadyExistsException("Customer already registered with given mobileNumber "
-                    +customerDto.getMobileNumber());
+                    +customerDto.getPhoneNumber());
         }
         Customer savedCustomer = customerRepository.save(customer);
         savingsAccountsRepository.save(createNewAccount(savedCustomer));
     }
 
-    /**
-     * @param customer - Customer Object
-     * @return the new account details
-     */
     private SavingsAccounts createNewAccount(Customer customer) {
         SavingsAccounts newAccount = new SavingsAccounts();
         newAccount.setCustomerId(customer.getCustomerId());
@@ -55,34 +48,28 @@ public class SavingsAccountsServiceImpl implements ISavingsAccountsService {
         return newAccount;
     }
 
-    /**
-     * @param mobileNumber - Input Mobile Number
-     * @return SavingsAccounts Details based on a given mobileNumber
-     */
+
     @Override
-    public CustomerDto fetchAccount(String mobileNumber) {
-        Customer customer = customerRepository.findByMobileNumber(mobileNumber).orElseThrow(
-                () -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber)
+    public CustomerDto fetchAccount(String phoneNumber) {
+        Customer customer = customerRepository.findByPhoneNumber(phoneNumber).orElseThrow(
+                () -> new ResourceNotFoundException("Customer", "phone Number", phoneNumber)
         );
         SavingsAccounts savingsAccounts = savingsAccountsRepository.findByCustomerId(customer.getCustomerId()).orElseThrow(
-                () -> new ResourceNotFoundException("Account", "customerId", customer.getCustomerId().toString())
+                () -> new ResourceNotFoundException("Savings Account", "customerId", customer.getCustomerId().toString())
         );
         CustomerDto customerDto = CustomerMapper.mapToCustomerDto(customer, new CustomerDto());
         customerDto.setSavingsAccountsDto(SavingsAccountsMapper.mapToSavingsAccountsDto(savingsAccounts, new SavingsAccountsDto()));
         return customerDto;
     }
 
-    /**
-     * @param customerDto - CustomerDto Object
-     * @return boolean indicating if the update of Account details is successful or not
-     */
+
     @Override
     public boolean updateAccount(CustomerDto customerDto) {
         boolean isUpdated = false;
         SavingsAccountsDto savingsAccountsDto = customerDto.getSavingsAccountsDto();
         if(savingsAccountsDto !=null ){
             SavingsAccounts savingsAccounts = savingsAccountsRepository.findById(savingsAccountsDto.getAccountNumber()).orElseThrow(
-                    () -> new ResourceNotFoundException("Account", "AccountNumber", savingsAccountsDto.getAccountNumber().toString())
+                    () -> new ResourceNotFoundException("Savings Account", "Savings account number", savingsAccountsDto.getAccountNumber().toString())
             );
             SavingsAccountsMapper.mapToSavingsAccounts(savingsAccountsDto, savingsAccounts);
             savingsAccounts = savingsAccountsRepository.save(savingsAccounts);
@@ -98,14 +85,10 @@ public class SavingsAccountsServiceImpl implements ISavingsAccountsService {
         return  isUpdated;
     }
 
-    /**
-     * @param mobileNumber - Input Mobile Number
-     * @return boolean indicating if the delete of Account details is successful or not
-     */
     @Override
-    public boolean deleteAccount(String mobileNumber) {
-        Customer customer = customerRepository.findByMobileNumber(mobileNumber).orElseThrow(
-                () -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber)
+    public boolean deleteAccount(String phoneNumber) {
+        Customer customer = customerRepository.findByPhoneNumber(phoneNumber).orElseThrow(
+                () -> new ResourceNotFoundException("Customer", "phone Number", phoneNumber)
         );
         savingsAccountsRepository.deleteByCustomerId(customer.getCustomerId());
         customerRepository.deleteById(customer.getCustomerId());
